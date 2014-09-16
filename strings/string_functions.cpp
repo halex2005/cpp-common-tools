@@ -220,8 +220,12 @@ namespace strings
     /// If the output was truncated due to this limit then the return value
     /// is the actual number of characters (excluding the terminating null byte)
     /// which have been written to the final string.
+    ///
+    /// If output is zero length, function will return zero.
     ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
     {
+        if (dest == nullptr || dest_len == 0)
+            return 0;
         va_list ap;
         va_start(ap, format);
         int result = ::vsnprintf(dest, dest_len, format, ap);
@@ -238,8 +242,12 @@ namespace strings
     /// If the output was truncated due to this limit then the return value
     /// is the actual number of characters (excluding the terminating null byte)
     /// which have been written to the final string.
+    ///
+    /// If output is zero length, function will return zero.
     ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args)
     {
+        if (dest == nullptr || dest_len == 0)
+            return 0;
         int result = ::vsnprintf(dest, dest_len, format, args);
         return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
     }

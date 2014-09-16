@@ -1,6 +1,8 @@
 #ifndef __ARRAY_SIZE_HEADER_H__
 #define __ARRAY_SIZE_HEADER_H__
 
+#include <cstdint>
+
 #ifndef __UNDOCUMENTED__
 namespace Private
 {

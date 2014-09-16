@@ -14,6 +14,8 @@ endif()
 set(SOURCES
     config.in
     array_size.h
+    platform.h
+    strings.h
 )
 set(string_sources
     strings/formatter.h
@@ -23,11 +25,26 @@ set(string_sources
     strings/string_template.h
     strings/string_template.cpp
 )
+source_group(strings FILES ${string_sources} )
+
+set(platform_sources
+    platform/file_functions.h
+    platform/file_functions.cpp
+    platform/handle.hpp
+    platform/performance_counter.h
+    platform/platform.h
+    platform/thread_functions.h
+    platform/thread_functions.cpp
+)
+source_group(platform FILES ${platform_sources})
 
 add_definitions(-std=c++11)
 add_definitions(-fpermissive)
-add_library(common-tools ${SOURCES} ${string_sources})
-source_group(strings FILES ${string_sources} )
+add_library(common-tools
+    ${SOURCES}
+    ${platform_sources}
+    ${string_sources}
+)
 
 include_directories(.)
 add_subdirectory(tests)
