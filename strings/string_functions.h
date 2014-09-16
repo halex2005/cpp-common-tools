@@ -20,8 +20,8 @@ namespace strings
 
 namespace strings
 {
-    size_t buffer_to_string(char *dest, size_t dest_len, const void *src, size_t src_len);
-    size_t buffer_to_string(wchar_t *dest, size_t dest_len, const void *src, size_t src_len);
+    size_t buffer_to_string(char *dest, size_t dest_len, const void *src, size_t src_len, char delimiter = ' ');
+    size_t buffer_to_string(wchar_t *dest, size_t dest_len, const void *src, size_t src_len, wchar_t delimiter = ' ');
 }
 
 #if HAVE_SNPRINTF != 1

@@ -109,7 +109,7 @@ namespace strings
         }
 
         template <class char_type>
-        size_t buffer_to_string_implementation(char_type *dest, size_t dest_len, const void *void_src, size_t src_len)
+        size_t buffer_to_string_implementation(char_type *dest, size_t dest_len, const void *void_src, size_t src_len, char_type delimiter)
         {
             char_type *p;
             const uint8_t *src = static_cast<const uint8_t *>(void_src);
@@ -122,22 +122,45 @@ namespace strings
                 return 0;
 
             char_type too_big[] = { '.', '.', '.', '\0' };
-            if (src_len * 3 > dest_len)
+            if (dest_len < ArraySize(too_big))
+                return 0;
+
+            if (delimiter)
             {
-                src_len = (dest_len - ArraySize(too_big)) / 3;
-                big = true;
+                if (src_len * 3 > dest_len)
+                {
+                    src_len = (dest_len - ArraySize(too_big)) / 3;
+                    big = true;
+                }
+
+                p = dest;
+                for (size_t i = 0; i < src_len; ++i)
+                {
+                    unsigned char byte = src[i];
+                    *p++ = get_digit((byte & 0xf0) >> 4);
+                    *p++ = get_digit(byte & 0x0f);
+                    *p++ = delimiter;
+                }
+                if (0 != (p - dest))
+                    --p;
+            }
+            else
+            {
+                if ((src_len*2+1) > dest_len)
+                {
+                    src_len = (dest_len - ArraySize(too_big)) / 2;
+                    big = true;
+                }
+
+                p = dest;
+                for (size_t i = 0; i < src_len; ++i)
+                {
+                    unsigned char byte = src[i];
+                    *p++ = get_digit((byte & 0xf0) >> 4);
+                    *p++ = get_digit(byte & 0x0f);
+                }
             }
 
-            p = dest;
-            for (size_t i = 0; i < src_len; ++i)
-            {
-                unsigned char byte = src[i];
-                *p++ = get_digit((byte & 0xf0) >> 4);
-                *p++ = get_digit(byte & 0x0f);
-                *p++ = char_type(' ');
-            }
-            if (0 != (p - dest))
-                --p;
             if (big)
                 p += string_copy(p, ArraySize(too_big), too_big);
             else
@@ -146,14 +169,14 @@ namespace strings
         }
     }
 
-    size_t buffer_to_string(char *dest, size_t dest_len, const void *src, size_t src_len)
+    size_t buffer_to_string(char *dest, size_t dest_len, const void *src, size_t src_len, char delimiter)
     {
-        return detail::buffer_to_string_implementation(dest, dest_len, src, src_len);
+        return detail::buffer_to_string_implementation(dest, dest_len, src, src_len, delimiter);
     }
     /// \overload
-    size_t buffer_to_string(wchar_t *dest, size_t dest_len, const void *src, size_t src_len)
+    size_t buffer_to_string(wchar_t *dest, size_t dest_len, const void *src, size_t src_len, wchar_t delimiter)
     {
-        return detail::buffer_to_string_implementation(dest, dest_len, src, src_len);
+        return detail::buffer_to_string_implementation(dest, dest_len, src, src_len, delimiter);
     }
 }
 

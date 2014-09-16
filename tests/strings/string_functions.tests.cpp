@@ -335,3 +335,155 @@ TEST_CASE("wchar_t-wchar_t string copy functions", "[strings]")
     }
 }
 
+TEST_CASE("buffer to string tests")
+{
+    uint8_t bytes[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+    SECTION("char buffer")
+    {
+        char buffer[1024] {};
+        SECTION("default delimiter") {
+            std::string expectedFullBytes{"00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10"};
+            std::string expectedSmallBuffer{"00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E..."};
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes));
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes));
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes));
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+        }
+
+        SECTION("dash delimiter")
+        {
+            std::string expectedFullBytes { "00-01-02-03-04-05-06-07-08-09-0A-0B-0C-0D-0E-0F-10" };
+            std::string expectedSmallBuffer { "00-01-02-03-04-05-06-07-08-09-0A-0B-0C-0D-0E..." };
+            char delimiter = '-';
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+        }
+
+        SECTION("empty delimiter")
+        {
+            std::string expectedFullBytes   { "000102030405060708090A0B0C0D0E0F10" };
+            std::string expectedSmallBuffer { "000102030405060708090A0B0C0D0E..." };
+            char delimiter = 0;
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+
+        }
+
+        SECTION("invalid parameters")
+        {
+            std::string emptyString = {};
+
+            SECTION("without delimiter") {
+                char delimiter = 0;
+                SECTION("empty buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce ... string");
+                {
+                    size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 3);
+                    REQUIRE(std::string("...") == buffer);
+                }
+
+                SECTION("empty array should produce empty string") {
+                    size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+            }
+
+            SECTION("dash delimiter") {
+                char delimiter = '-';
+                SECTION("empty buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce ... string");
+                {
+                    size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 3);
+                    REQUIRE(std::string("...") == buffer);
+                }
+
+                SECTION("empty array should produce empty string") {
+                    size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+            }
+
+        }
+    }
+
+    SECTION("wchar_t buffer")
+    {
+        wchar_t buffer[1024];
+    }
+}
