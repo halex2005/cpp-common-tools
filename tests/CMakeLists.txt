@@ -12,6 +12,7 @@ set (platform_tests
     platform/platform_headers.tests.cpp
 
     platform/file_functions.tests.cpp
+    platform/performance_counter.tests.cpp
     platform/thread_functions.tests.cpp
 )
 source_group(platform FILES ${platform_tests})
