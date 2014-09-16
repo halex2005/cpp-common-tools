@@ -207,5 +207,43 @@ namespace strings
 
 #endif
 }
+#else
+#include <cstdio>
+namespace strings
+{
+    /// \brief Formatted output conversion to string.
+    ///
+    /// This function differ from standard C99.
+    ///
+    /// The functions snprintf() and vsnprintf() do not write more than
+    /// size bytes (including the terminating null byte ('\0')).
+    /// If the output was truncated due to this limit then the return value
+    /// is the actual number of characters (excluding the terminating null byte)
+    /// which have been written to the final string.
+    ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
+    {
+        va_list ap;
+        va_start(ap, format);
+        int result = ::vsnprintf(dest, dest_len, format, ap);
+        va_end(ap);
+        return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
+    }
+
+    /// \brief Formatted output conversion to string.
+    ///
+    /// This function differ from standard C99.
+    ///
+    /// The functions snprintf() and vsnprintf() do not write more than
+    /// size bytes (including the terminating null byte ('\0')).
+    /// If the output was truncated due to this limit then the return value
+    /// is the actual number of characters (excluding the terminating null byte)
+    /// which have been written to the final string.
+    ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args)
+    {
+        int result = ::vsnprintf(dest, dest_len, format, args);
+        return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
+    }
+}
 
 #endif
+

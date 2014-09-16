@@ -645,3 +645,54 @@ TEST_CASE("buffer to string tests")
         }
     }
 }
+
+TEST_CASE("snprintf tests")
+{
+    std::string emptyString;
+    std::string expectedString = "format 16 string";
+    std::string expectedStringSmallBuffer = "format 16 strin";
+    const char *formatString = "format %d string";
+    char buffer[1024] {};
+
+    SECTION("simple format")
+    {
+        SECTION("when buffer is exact to fit should print full string")
+        {
+            CHECK(16 == strings::snprintf(buffer, expectedString.size() + 1, formatString, 16));
+            REQUIRE(expectedString == buffer);
+        }
+
+        SECTION("when buffer is less than fit")
+        {
+            int result = strings::snprintf(buffer, expectedString.size(), formatString, 16);
+            CHECK(15 == result);
+            REQUIRE(expectedStringSmallBuffer == buffer);
+        }
+    }
+
+    SECTION("invalid parameters")
+    {
+        SECTION("when buffer is nullptr should return 0")
+        {
+            REQUIRE(0 == strings::snprintf(nullptr, 16, formatString, 16));
+        }
+
+        SECTION("when buffer is zero length should return 0")
+        {
+            REQUIRE(0 == strings::snprintf(buffer, 0, formatString, 16));
+        }
+
+        SECTION("when buffer is one should return 0")
+        {
+            CHECK(0 == strings::snprintf(buffer, 1, formatString, 16));
+            REQUIRE(emptyString == buffer);
+        }
+
+        SECTION("when buffer is two should return 1")
+        {
+            CHECK(1 == strings::snprintf(buffer, 2, formatString, 16));
+            REQUIRE(buffer[0] == 'f');
+        }
+    }
+
+}
