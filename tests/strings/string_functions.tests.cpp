@@ -418,6 +418,16 @@ TEST_CASE("buffer to string tests")
         SECTION("invalid parameters")
         {
             std::string emptyString = {};
+            std::string manyFiller = "...";
+
+            SECTION("nullptr buffer should return 0") {
+                REQUIRE(0 == buffer_to_string(static_cast<char *>(nullptr), 16, bytes, ArraySize(bytes)));
+            }
+
+            SECTION("nullptr array should produce empty string") {
+                CHECK(0 == buffer_to_string(buffer, ArraySize(buffer), static_cast<uint8_t *>(nullptr), 16));
+                REQUIRE(emptyString == buffer);
+            }
 
             SECTION("without delimiter") {
                 char delimiter = 0;
@@ -439,7 +449,7 @@ TEST_CASE("buffer to string tests")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
-                    REQUIRE(std::string("...") == buffer);
+                    REQUIRE(manyFiller == buffer);
                 }
 
                 SECTION("empty array should produce empty string") {
@@ -469,7 +479,7 @@ TEST_CASE("buffer to string tests")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
-                    REQUIRE(std::string("...") == buffer);
+                    REQUIRE(manyFiller == buffer);
                 }
 
                 SECTION("empty array should produce empty string") {
@@ -484,6 +494,154 @@ TEST_CASE("buffer to string tests")
 
     SECTION("wchar_t buffer")
     {
-        wchar_t buffer[1024];
+        wchar_t buffer[1024] {};
+        SECTION("default delimiter") {
+            std::wstring expectedFullBytes{L"00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10"};
+            std::wstring expectedSmallBuffer{L"00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E..."};
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes));
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes));
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes));
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+        }
+
+        SECTION("dash delimiter")
+        {
+            std::wstring expectedFullBytes { L"00-01-02-03-04-05-06-07-08-09-0A-0B-0C-0D-0E-0F-10" };
+            std::wstring expectedSmallBuffer { L"00-01-02-03-04-05-06-07-08-09-0A-0B-0C-0D-0E..." };
+            wchar_t delimiter = L'-';
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+        }
+
+        SECTION("empty delimiter")
+        {
+            std::wstring expectedFullBytes   { L"000102030405060708090A0B0C0D0E0F10" };
+            std::wstring expectedSmallBuffer { L"000102030405060708090A0B0C0D0E..." };
+            wchar_t delimiter = 0;
+
+            SECTION("should convert bytes to string when buffer is enough") {
+                size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should convert bytes to string when buffer is for exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size() + 1, bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedFullBytes.size());
+                REQUIRE(expectedFullBytes == buffer);
+            }
+
+            SECTION("should emplace ... when buffer is less than exact fit") {
+                size_t result = buffer_to_string(buffer, expectedFullBytes.size(), bytes, ArraySize(bytes), delimiter);
+                CHECK(result == expectedSmallBuffer.size());
+                REQUIRE(expectedSmallBuffer == buffer);
+            }
+
+        }
+
+        SECTION("invalid parameters")
+        {
+            std::wstring emptyString = {};
+            std::wstring manyFiller = L"...";
+
+            SECTION("nullptr buffer should return 0") {
+                REQUIRE(0 == buffer_to_string(static_cast<char *>(nullptr), 16, bytes, ArraySize(bytes)));
+            }
+
+            SECTION("nullptr array should produce empty string") {
+                CHECK(0 == buffer_to_string(buffer, ArraySize(buffer), static_cast<uint8_t *>(nullptr), 16));
+                REQUIRE(emptyString == buffer);
+            }
+
+            SECTION("without delimiter") {
+                wchar_t delimiter = 0;
+                SECTION("empty buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce ... string");
+                {
+                    size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 3);
+                    REQUIRE(manyFiller == buffer);
+                }
+
+                SECTION("empty array should produce empty string") {
+                    size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+            }
+
+            SECTION("dash delimiter") {
+                wchar_t delimiter = L'-';
+                SECTION("empty buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce empty string");
+                {
+                    size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+
+                SECTION("small buffer should produce ... string");
+                {
+                    size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
+                    CHECK(result == 3);
+                    REQUIRE(manyFiller == buffer);
+                }
+
+                SECTION("empty array should produce empty string") {
+                    size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
+                    CHECK(result == 0);
+                    REQUIRE(emptyString == buffer);
+                }
+            }
+        }
     }
 }
