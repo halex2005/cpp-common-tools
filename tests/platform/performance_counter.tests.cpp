@@ -65,17 +65,17 @@ TEST_CASE("performance counter", "[perfcounter][platform]")
         platform::acc_performance_initialized_timer timer;
         {
             platform::acc_performance_scope scope(timer);
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
-        CHECK(timer.get_milliseconds() > 5);
-        CHECK(timer.get_milliseconds() < 15);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        CHECK(timer.get_milliseconds() > 15);
+        CHECK(timer.get_milliseconds() < 25);
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
         {
             platform::acc_performance_scope scope(timer);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        CHECK(timer.get_milliseconds() > 15);
-        CHECK(timer.get_milliseconds() < 25);
+        CHECK(timer.get_milliseconds() > 25);
+        CHECK(timer.get_milliseconds() < 35);
     }
 }
 
