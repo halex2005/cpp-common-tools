@@ -14,7 +14,6 @@ namespace strings
         size_t precision;
     };
 
-
     size_t bool_format(char *buffer, size_t bufferSize, const format_options *format, void *value);
     size_t char_format(char *buffer, size_t bufferSize, const format_options *format, void *value);
     size_t wchar_t_format(char *buffer, size_t bufferSize, const format_options *format, void *value);
@@ -101,8 +100,7 @@ namespace strings
     }
 
     template<typename _CharT, typename _Traits, typename _Alloc>
-    inline formatter get_formatter(const std::basic_string<_CharT, _Traits, _Alloc> &stringValue)
-    {
+    inline formatter get_formatter(const std::basic_string<_CharT, _Traits, _Alloc> &stringValue) {
         const _CharT *str = stringValue.c_str();
         return get_formatter(str);
     }
