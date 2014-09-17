@@ -9,7 +9,7 @@
 #ifndef __HANDLE_HPP__
 #define __HANDLE_HPP__
 
-#include "platfrom.h"
+#include "platform.h"
 
 #ifndef ASSERT
 #include <cassert>
