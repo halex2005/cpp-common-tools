@@ -1,15 +1,21 @@
-///
 /// \file
 ///
-/// \brief  Timer implementation using \c QueryPerformanceCounter() on Windows.
+/// \ingroup platform
 ///
-/// Initial implementation was made by Mattew Wilson
+/// \brief   Timers
+///
+/// Initial implementation was made by Mattew Wilson in article
 /// [Win32 Performance Measurement Options](http://www.drdobbs.com/windows/win32-performance-measurement-options/184416651).
 /// Here is slight modified version.
+///
+/// On Windows implementations uses \c QueryPerformanceCounter() function.
+/// On Linux implementation uses \c gettimeofday() function.
 ///
 
 #ifndef __PERFOMANCE_COUNTER_H__
 #define __PERFOMANCE_COUNTER_H__
+
+#include "platform.h"
 
 #ifndef assert
 #include <cassert>
@@ -17,13 +23,19 @@
 
 namespace platform
 {
+
     /// \brief Timer initializer.
     ///
-    /// В целях производительности обычная реализация таймеров
-    /// не инициализирует внутренние данные, ожидая вызова
-    /// start()/stop() для их инициализации. Если все же
-    /// необходимо иметь инициализированный таймер,
-    /// можно воспользоваться этим шаблоном.
+    /// For performance purposes, performance_counter implementation
+    /// doesn't initialize internal data before first calling start()/stop().
+    /// Therefore methods like performance_counter.get_seconds()
+    /// will not return right data before initialization.
+    ///
+    /// You can use this class to have initialized performace_counter
+    /// (see typedef \ref performance_initialized_timer):
+    /// \code
+    /// platform::performance_initialized_timer timer;
+    /// \endcode
     template <typename Counter>
     class timer_initialiser : public Counter
     {
@@ -32,7 +44,7 @@ namespace platform
         typedef timer_initialiser<Counter> class_type;
 
     public:
-        /// Инициализация таймера вызовом start()/stop()
+        /// Initialize timer by calling start()/stop()
         timer_initialiser()
         {
             counter_type::start();
@@ -41,7 +53,7 @@ namespace platform
     };
 
 
-    /// \brief Таймер на область видимости.
+    /// \brief RAII implementation for call start()/stop() methods on counter_type.
     template <typename Counter>
     class timer_scope
     {
@@ -57,8 +69,7 @@ namespace platform
         ~timer_scope() { counter_.stop(); }
         void stop() { counter_.stop(); }
 
-        // Метод константный чтобы гарантировать
-        // доступность только операции stop().
+        // Method has const qualifier to guarantee accessibility stop() method only
         const counter_type &get_counter() const
         {
             return counter_;
@@ -72,27 +83,17 @@ namespace platform
     };
 }
 
-#ifdef _WIN32
+#if defined PLATFORM_WIN32
 
 namespace platform
 {
-    /// \brief Реализация таймера на основе PerformanceCounter.
-    ///
-    /// По умолчанию для измерения времени используется
-    /// \c QueryPerformanceCounter(). Если в системе нет
-    /// счетчиков производительности, для измерения
-    /// используется функция \c GetTickCount(), которая
-    /// менее точна...
-    ///
-    /// При измерениях функция \c QueryPerformanceFrequency()
-    /// вызывается лишь однажды, далее ее значение кэшируется
-    /// и используется в дальнейших вычислениях.
     class performance_counter
     {
     public:
         typedef performance_counter class_type;
         typedef __int64 value_type;
         typedef __int64 interval_type;
+        typedef __int64 period_count_type;
         typedef float sec_interval_type;
 
         static void class_init()
@@ -106,25 +107,18 @@ namespace platform
         void start();
         void stop();
 
-        /// \brief Прошедшее количество "тиков" в измеренном периоде.
-        interval_type get_period_count() const;
-
-        /// \brief Количество секунд в измеренном периоде.
+        period_count_type get_period_count() const;
         sec_interval_type get_seconds() const;
-
-        /// \brief Количество миллисекунд в измеренном периоде.
-        interval_type get_milliseconds() const;
-
-        /// \brief Количество микросекунд в измеренном периоде.
-        interval_type get_microseconds() const;
+        interval_type     get_milliseconds() const;
+        interval_type     get_microseconds() const;
 
         static interval_type frequency();
     private:
         typedef void (*measure_fn_type)(value_type&);
 
         static interval_type query_frequency();
-        static void qpc(value_type &epoch); ///< Получение времени посредством QueryPerformanceCounter()
-        static void gtc(value_type &epoch); ///< Получение времени посредством GetTickCount()
+        static void qpc(value_type &epoch); ///< Get ticks using QueryPerformanceCounter() API
+        static void gtc(value_type &epoch); ///< Get ticks using GetTickCount() API
         static measure_fn_type get_measure_fn();
         static void measure(value_type &epoch);
 
@@ -138,8 +132,7 @@ namespace platform
         interval_type frequency;
         if( !::QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&frequency)) || frequency == 0)
         {
-            // Предотвращаем деление на нуль, если
-            // performance counter отсутствует в системе.
+            // Prevent division by zero if QueryPerformanceCounter() API doesn't supported by OS
             frequency = 1000;
         }
         return frequency;
@@ -229,14 +222,6 @@ namespace platform
         return result;
     }
 
-    ///
-    /// \brief Реализация таймеров с паузой (накоплением значения)
-    ///        на основе других таймеров с одним интерфейсом.
-    ///
-    /// Последовательные вызовы функций start() и stop()
-    /// приводят к накоплению значений времени в поле
-    /// accumulation. Для сброса этого значения в нуль
-    /// необходимо вызвать функцию reset().
     template <class timer_type>
     class accumulation_performance_counter
     {
@@ -245,6 +230,7 @@ namespace platform
         typedef typename timer_type::value_type value_type;
         typedef typename timer_type::interval_type interval_type;
         typedef typename timer_type::sec_interval_type sec_interval_type;
+        typedef typename timer_type::period_count_type period_count_type;
 
         accumulation_performance_counter() : accumulation(0) {}
 
@@ -256,29 +242,18 @@ namespace platform
         void reset();
         void decrease(interval_type overhead);
 
-        /// \brief Прошедшее количество "тиков" в измеренном периоде.
-        interval_type get_period_count() const { return accumulation; }
-
-        /// \brief Количество секунд в измеренном периоде.
+        /// Elapsed platform-dependent ticks count in measured interval.
+        period_count_type get_period_count() const { return accumulation; }
         sec_interval_type get_seconds() const;
-
-        /// \brief Количество миллисекунд в измеренном периоде.
-        interval_type get_milliseconds() const;
-
-        /// \brief Количество микросекунд в измеренном периоде.
-        interval_type get_microseconds() const;
+        interval_type     get_milliseconds() const;
+        interval_type     get_microseconds() const;
 
         static interval_type frequency() { return timer_type::frequency(); }
 
     private:
         timer_type timer;
-        interval_type accumulation;
+        period_count_type accumulation;
     };
-
-    typedef accumulation_performance_counter<performance_counter> acc_performance_counter;
-    typedef timer_scope<accumulation_performance_counter<performance_counter>> acc_performance_scope;
-    typedef timer_initialiser<accumulation_performance_counter<performance_counter>> acc_performance_initialized_timer;
-
 
     // Operations
     template <class timer_type>
@@ -306,14 +281,12 @@ namespace platform
         accumulation -= overhead;
     }
 
-
     // Attributes
     template <class timer_type>
     inline typename accumulation_performance_counter<timer_type>::sec_interval_type accumulation_performance_counter<timer_type>::get_seconds() const
     {
         return (sec_interval_type)get_period_count()/timer.frequency();
     }
-
 
     template <class timer_type>
     inline typename accumulation_performance_counter<timer_type>::interval_type accumulation_performance_counter<timer_type>::get_milliseconds() const
@@ -344,7 +317,7 @@ namespace platform
     }
 }
 
-#elif defined __GNUC__
+#elif defined PLATFORM_LINUX
 
 #include <sys/time.h>
 
@@ -354,13 +327,13 @@ namespace platform
     {
     public:
         typedef struct timeval      epoch_type;
+        typedef epoch_type          period_count_type;
         typedef ssize_t             value_type;
         typedef ssize_t             interval_type;
         typedef float               sec_interval_type;
         typedef performance_counter class_type;
 
     public:
-
         void    start();
         void    stop();
         void    restart();
@@ -371,12 +344,12 @@ namespace platform
         static interval_type      get_milliseconds(epoch_type start, epoch_type end);
         static interval_type      get_microseconds(epoch_type start, epoch_type end);
 
-        epoch_type        get_period_count() const;
+        period_count_type get_period_count() const;
         sec_interval_type get_seconds() const;
         interval_type     get_milliseconds() const;
         interval_type     get_microseconds() const;
 
-        epoch_type        stop_get_period_count_and_restart();
+        period_count_type stop_get_period_count_and_restart();
         sec_interval_type stop_get_seconds_and_restart();
         interval_type     stop_get_milliseconds_and_restart();
         interval_type     stop_get_microseconds_and_restart();
@@ -388,7 +361,6 @@ namespace platform
         epoch_type  m_start;
         epoch_type  m_end;
     };
-
 
     inline /* static */ void performance_counter::measure_(performance_counter::epoch_type &epoch)
     {
@@ -424,7 +396,8 @@ namespace platform
 
     inline /* static */ performance_counter::sec_interval_type performance_counter::get_seconds(performance_counter::epoch_type start, performance_counter::epoch_type end)
     {
-        assert(start.tv_sec <= end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(start.tv_sec <= end.tv_sec);
 
         long    secs    =   end.tv_sec - start.tv_sec;
         long    usecs   =   end.tv_usec - start.tv_usec;
@@ -436,7 +409,8 @@ namespace platform
 
     inline /* static */ performance_counter::interval_type performance_counter::get_milliseconds(performance_counter::epoch_type start, performance_counter::epoch_type end)
     {
-        assert(start.tv_sec <= end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(start.tv_sec <= end.tv_sec);
 
         long    secs    =   end.tv_sec - start.tv_sec;
         long    usecs   =   end.tv_usec - start.tv_usec;
@@ -448,7 +422,8 @@ namespace platform
 
     inline /* static */ performance_counter::interval_type performance_counter::get_microseconds(performance_counter::epoch_type start, performance_counter::epoch_type end)
     {
-        assert(start.tv_sec <= end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(start.tv_sec <= end.tv_sec);
 
         long    secs    =   end.tv_sec - start.tv_sec;
         long    usecs   =   end.tv_usec - start.tv_usec;
@@ -458,16 +433,17 @@ namespace platform
         return secs*(1000*1000) + usecs;
     }
 
-    inline performance_counter::epoch_type performance_counter::get_period_count() const
+    inline performance_counter::period_count_type performance_counter::get_period_count() const
     {
-        assert(m_start.tv_sec <= m_end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(m_start.tv_sec <= m_end.tv_sec);
 
         long    secs    =   m_end.tv_sec - m_start.tv_sec;
         long    usecs   =   m_end.tv_usec - m_start.tv_usec;
 
         assert(usecs >= 0 || secs > 0);
 
-        epoch_type result;
+        period_count_type result;
         result.tv_sec = secs;
         result.tv_usec = usecs;
         return result;
@@ -475,7 +451,8 @@ namespace platform
 
     inline performance_counter::sec_interval_type performance_counter::get_seconds() const
     {
-        assert(m_start.tv_sec <= m_end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(m_start.tv_sec <= m_end.tv_sec);
 
         long    secs    =   m_end.tv_sec - m_start.tv_sec;
         long    usecs   =   m_end.tv_usec - m_start.tv_usec;
@@ -487,7 +464,8 @@ namespace platform
 
     inline performance_counter::interval_type performance_counter::get_milliseconds() const
     {
-        assert(m_start.tv_sec <= m_end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(m_start.tv_sec <= m_end.tv_sec);
 
         long    secs    =   m_end.tv_sec - m_start.tv_sec;
         long    usecs   =   m_end.tv_usec - m_start.tv_usec;
@@ -499,7 +477,8 @@ namespace platform
 
     inline performance_counter::interval_type performance_counter::get_microseconds() const
     {
-        assert(m_start.tv_sec <= m_end.tv_sec); //"end before start: stop() must be called after start()"
+        //"end before start: stop() must be called after start()"
+        assert(m_start.tv_sec <= m_end.tv_sec);
 
         long    secs    =   m_end.tv_sec - m_start.tv_sec;
         long    usecs   =   m_end.tv_usec - m_start.tv_usec;
@@ -509,14 +488,6 @@ namespace platform
         return secs * (1000 * 1000) + usecs;
     }
 
-    ///
-    /// \brief Реализация таймеров с паузой (накоплением значения)
-    ///        на основе других таймеров с одним интерфейсом.
-    ///
-    /// Последовательные вызовы функций start() и stop()
-    /// приводят к накоплению значений времени в поле
-    /// accumulation. Для сброса этого значения в нуль
-    /// необходимо вызвать функцию reset().
     template <class timer_type>
     class accumulation_performance_counter
     {
@@ -526,6 +497,7 @@ namespace platform
         typedef typename timer_type::value_type value_type;
         typedef typename timer_type::interval_type interval_type;
         typedef typename timer_type::sec_interval_type sec_interval_type;
+        typedef typename timer_type::period_count_type period_count_type;
 
         accumulation_performance_counter() : accumulation() {}
 
@@ -535,25 +507,18 @@ namespace platform
         void start();
         void stop();
         void reset();
-        void decrease(interval_type overhead);
+        void decrease(period_count_type overhead);
 
-        /// \brief Прошедшее количество "тиков" в измеренном периоде.
-        epoch_type        get_period_count() const { return accumulation; }
-
-        /// \brief Количество секунд в измеренном периоде.
+        period_count_type get_period_count() const { return accumulation; }
         sec_interval_type get_seconds() const;
-
-        /// \brief Количество миллисекунд в измеренном периоде.
-        interval_type get_milliseconds() const;
-
-        /// \brief Количество микросекунд в измеренном периоде.
-        interval_type get_microseconds() const;
+        interval_type     get_milliseconds() const;
+        interval_type     get_microseconds() const;
 
         static interval_type frequency() { return timer_type::frequency(); }
 
     private:
         timer_type timer;
-        epoch_type accumulation;
+        period_count_type accumulation;
     };
 
     inline void operator+=(timeval &acc, const timeval &addition)
@@ -587,7 +552,7 @@ namespace platform
     }
 
     template <class timer_type>
-    inline void accumulation_performance_counter<timer_type>::decrease(typename accumulation_performance_counter<timer_type>::interval_type overhead)
+    inline void accumulation_performance_counter<timer_type>::decrease(typename accumulation_performance_counter<timer_type>::period_count_type overhead)
     {
         accumulation -= overhead;
     }
@@ -619,13 +584,106 @@ namespace platform
 
 namespace platform
 {
+    /// \brief Scope for default \ref performance_counter timer
     typedef timer_scope<performance_counter> performance_scope;
+    /// \brief Initialized timer based on \ref performance_counter timer
     typedef timer_initialiser<performance_counter> performance_initialized_timer;
 
+    /// \brief Timer with accumulation based on default \ref performance_counter timer
     typedef accumulation_performance_counter<performance_counter> acc_performance_counter;
-    typedef timer_scope<accumulation_performance_counter<performance_counter>> acc_performance_scope;
-    typedef timer_initialiser<accumulation_performance_counter<performance_counter>> acc_performance_initialized_timer;
+    /// \brief Scope for timer with accumulation
+    typedef timer_scope<acc_performance_counter> acc_performance_scope;
+    /// \brief Initialized timer with accumulation based on \ref acc_performance_counter timer
+    typedef timer_initialiser<acc_performance_counter> acc_performance_initialized_timer;
+}
+
+#ifdef __DOXYGEN_RUNNING__
+
+namespace platform
+{
+    /// \brief High-resolution timer.
+    ///
+    /// Implementation for Windows using \c QueryPerformanceCounter().
+    /// If OS doesn't support \c QueryPerformanceCounter() interface,
+    /// \c GetTickCount() function will be used
+    /// (note that GetTickCount() API is not high-resolution).
+    ///
+    /// Linux implementation is based on \ref gettimeofday() function.
+    ///
+    /// Usage:
+    ///
+    /// ~~~{.c++}
+    /// platform::performance_counter timer;
+    /// {
+    ///     platform::performance_scope scope(timer);
+    ///     // some computing here
+    /// }
+    /// printf("computing completed, elapsed %g seconds", timer.get_seconds());
+    /// ~~~
+    class performance_counter
+    {
+    public:
+        typedef platfrom-dependent period_count_type;
+        typedef ssize_t interval_type;
+        typedef float sec_interval_type;
+
+        /// \brief Start measure
+        void start();
+        /// \brief Stop measure
+        void stop();
+
+        /// \brief Elapsed platform-dependent ticks count in measured interval.
+        period_count_type get_period_count() const;
+
+        /// \brief Elapsed seconds count in measured interval
+        sec_interval_type get_seconds() const;
+
+        /// \brief Elapsed milliseconds count in measured interval.
+        interval_type     get_milliseconds() const;
+
+        /// \brief Elapsed microseconds count in measured interval.
+        interval_type     get_microseconds() const;
+    };
+
+    /// \brief Timer with pause support (value accumulation)
+    ///
+    /// Subsequent calls to start()/stop() functions will lead
+    /// to accumulate time in accumilation member.
+    /// You can call reset() function for drop accumulated value to zero.
+    template <class timer_type>
+    class accumulation_performance_counter
+    {
+    public:
+        typedef typename timer_type::interval_type interval_type;
+        typedef typename timer_type::sec_interval_type sec_interval_type;
+        typedef typename timer_type::period_count_type period_count_type;
+
+        /// Continue measure
+        void start();
+
+        /// Pause measure
+        void stop();
+
+        /// Reset measure
+        void reset();
+
+        /// Decrease specified overhead
+        void decrease(period_count_type overhead);
+
+        /// Elapsed platform-dependent ticks count in measured interval.
+        period_count_type get_period_count() const;
+
+        /// \brief Elapsed seconds count in measured interval
+        sec_interval_type get_seconds() const;
+
+        /// \brief Elapsed milliseconds count in measured interval.
+        interval_type     get_milliseconds() const;
+
+        /// \brief Elapsed microseconds count in measured interval.
+        interval_type     get_microseconds() const;
+    };
 }
 
 #endif
 
+#endif

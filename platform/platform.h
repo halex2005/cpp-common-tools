@@ -7,4 +7,35 @@
 #define PLATFORM_LINUX
 #endif
 
+#ifdef __DOXYGEN_RUNNING__
+
+/// \defgroup platform platform
+/// \ingroup common-tools
+///
+/// This group contains implementations for common tools, based on specific platform support.
+///
+/// \addtogroup platform
+/// @{
+
+#ifndef PLATFORM_WIN32
+/// \brief Defined when compiling under WIN32 platform.
+#define PLATFORM_WIN32
+#undef  PLATFORM_WIN32
+#endif
+
+#ifndef PLATFORM_LINUX
+/// \brief Defined when compiling under LINUX platform.
+#define PLATFORM_LINUX
+#undef  PLATFORM_LINUX
+#endif
+
+/// \brief Contains platform functions and classes
+namespace platform
+{
+}
+
+/// @}
+
+#endif
+
 #endif
