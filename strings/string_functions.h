@@ -1,7 +1,6 @@
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
-#include "config.in.h"
 
 namespace strings
 {

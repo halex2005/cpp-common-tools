@@ -3,10 +3,23 @@
 #include <array_size.h>
 #include <cstring>
 #include <boost/nowide/convert.hpp>
+#include "config.in.h"
 
-// string_copy implementation
+/// \defgroup strings strings
+/// \ingroup common-tools
+///
+/// This group contains utility classes and functions work with strings.
+
+/// \ingroup strings
+/// \brief contains functions that works with strings
 namespace strings
 {
+    /// \brief String copy
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied
+    /// \param [in]  sourceSize    - copy at most chars count from source
+    /// \return Number of characters actual copied to destination buffer
     size_t string_copy(char *buffer, size_t bufferMaxSize, const char *source, size_t sourceSize)
     {
         if (!buffer || !bufferMaxSize)
@@ -18,6 +31,11 @@ namespace strings
         return strlen(buffer);
     }
 
+    /// \brief String copy
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied (must be null-terminated string)
+    /// \return Number of characters actual copied to destination buffer
     size_t string_copy(char *buffer, size_t bufferMaxSize, const char *source)
     {
         if (!buffer || !bufferMaxSize)
@@ -29,6 +47,13 @@ namespace strings
         return strlen(buffer);
     }
 
+    /// \brief String copy with narrowing of source
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied
+    /// \param [in]  sourceSize    - copy at most chars count from source
+    /// \return Number of characters actual copied to destination buffer
+    /// \note Destination buffer will be encoded with UTF-8 encoding.
     size_t string_copy(char *buffer, size_t bufferMaxSize, const wchar_t *source, size_t sourceSize)
     {
         if (!buffer || !bufferMaxSize)
@@ -40,6 +65,12 @@ namespace strings
         return strlen(buffer);
     }
 
+    /// \brief String copy with narrowing of source
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied (must be null-terminated string)
+    /// \return Number of characters actual copied to destination buffer
+    /// \note Destination buffer will be encoded with UTF-8 encoding.
     size_t string_copy(char *buffer, size_t bufferMaxSize, const wchar_t *source)
     {
         if (!buffer || !bufferMaxSize)
@@ -51,6 +82,13 @@ namespace strings
         return strlen(buffer);
     }
 
+    /// \brief String copy with widening of source
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied
+    /// \param [in]  sourceSize    - copy at most chars count from source
+    /// \return Number of characters actual copied to destination buffer
+    /// \note It is expected that source string is valid UTF-8 encoded string.
     size_t string_copy(wchar_t *buffer, size_t bufferMaxSize, const char *source, size_t sourceSize)
     {
         if (!buffer || !bufferMaxSize)
@@ -62,6 +100,12 @@ namespace strings
         return wcslen(buffer);
     }
 
+    /// \brief String copy with widening of source
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied (must be null-terminated string)
+    /// \return Number of characters actual copied to destination buffer
+    /// \note It is expected that source string is valid UTF-8 encoded string.
     size_t string_copy(wchar_t *buffer, size_t bufferMaxSize, const char *source)
     {
         if (!buffer || !bufferMaxSize)
@@ -73,6 +117,12 @@ namespace strings
         return wcslen(buffer);
     }
 
+    /// \brief String copy
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied
+    /// \param [in]  sourceSize    - copy at most chars count from source
+    /// \return Number of characters actual copied to destination buffer
     size_t string_copy(wchar_t *buffer, size_t bufferMaxSize, const wchar_t *source, size_t sourceSize)
     {
         if (!buffer || !bufferMaxSize)
@@ -84,6 +134,11 @@ namespace strings
         return wcslen(buffer);
     }
 
+    /// \brief String copy
+    /// \param [out] buffer        - destination buffer
+    /// \param [in]  bufferMaxSize - destination buffer len
+    /// \param [in]  source        - source string to be copied (must be null-terminated string)
+    /// \return Number of characters actual copied to destination buffer
     size_t string_copy(wchar_t *buffer, size_t bufferMaxSize, const wchar_t *source)
     {
         if (!buffer || !bufferMaxSize)
@@ -169,6 +224,32 @@ namespace strings
         }
     }
 
+    /// \brief Convert binary data to string representation as hex byte values
+    /// \param [out] dest      - destination buffer
+    /// \param [in]  dest_len  - destination buffer len
+    /// \param [in]  src       - pointer to data
+    /// \param [in]  src_len   - size of data
+    /// \param [in]  delimiter - delimiter character between neighbor bytes in string (0 to turn off delimiter)
+    /// \return Number of characters actual written to destination buffer
+    ///
+    /// Usage:
+    ///
+    /// ~~~{.c}
+    /// char buffer[1024];
+    /// size_t data = 0xEFBEADDE;
+    ///
+    /// // example: default delimiter is space
+    /// buffer_to_string(buffer, ArraySize(buffer), &data, sizeof(data))
+    /// CHECK(std::string("DE AD BE EF") == buffer);
+    ///
+    /// // example: change delimiter to dash
+    /// buffer_to_string(buffer, ArraySize(buffer), &data, sizeof(data), '-')
+    /// CHECK(std::string("DE AD BE EF") == buffer);
+    ///
+    /// // example: turn off delimiter character
+    /// buffer_to_string(buffer, ArraySize(buffer), &data, sizeof(data), 0)
+    /// CHECK(std::string("DEADBEEF") == buffer);
+    /// ~~~
     size_t buffer_to_string(char *dest, size_t dest_len, const void *src, size_t src_len, char delimiter)
     {
         return detail::buffer_to_string_implementation(dest, dest_len, src, src_len, delimiter);
@@ -180,14 +261,33 @@ namespace strings
     }
 }
 
-#if HAVE_SNPRINTF != 1
+#include <cstdio>
 
 namespace strings
 {
-#if defined (_WIN32)
-
+    /// \brief Formatted output conversion to string.
+    ///
+    /// This function differ from standard C99.
+    ///
+    /// The functions snprintf() and vsnprintf() do not write more than
+    /// size bytes (including the terminating null byte ('\0')).
+    /// If the output was truncated due to this limit then the return value
+    /// is the actual number of characters (excluding the terminating null byte)
+    /// which have been written to the final string.
+    ///
+    /// If output is zero length, function will return zero.
     ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
     {
+#if HAVE_SNPRINTF == 1
+        if (dest == nullptr || dest_len == 0)
+            return 0;
+        va_list ap;
+        va_start(ap, format);
+        int result = ::vsnprintf(dest, dest_len, format, ap);
+        va_end(ap);
+        return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
+#else
+#   if defined (_WIN32)
         int retval;
         va_list ap;
         va_start(ap, format);
@@ -196,41 +296,8 @@ namespace strings
 
         dest[dest_len - 1] = 0;
         return retval > 0 ? retval : dest_len - 1;
-    }
-
-    ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args)
-    {
-        int retval = _vsnprintf(dest, dest_len, format, args);
-        dest[dest_len - 1] = 0;
-        return retval > 0 ? retval : dest_len - 1;
-    }
-
+#   endif
 #endif
-}
-#else
-#include <cstdio>
-namespace strings
-{
-    /// \brief Formatted output conversion to string.
-    ///
-    /// This function differ from standard C99.
-    ///
-    /// The functions snprintf() and vsnprintf() do not write more than
-    /// size bytes (including the terminating null byte ('\0')).
-    /// If the output was truncated due to this limit then the return value
-    /// is the actual number of characters (excluding the terminating null byte)
-    /// which have been written to the final string.
-    ///
-    /// If output is zero length, function will return zero.
-    ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
-    {
-        if (dest == nullptr || dest_len == 0)
-            return 0;
-        va_list ap;
-        va_start(ap, format);
-        int result = ::vsnprintf(dest, dest_len, format, ap);
-        va_end(ap);
-        return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
     }
 
     /// \brief Formatted output conversion to string.
@@ -246,12 +313,18 @@ namespace strings
     /// If output is zero length, function will return zero.
     ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args)
     {
+#if HAVE_SNPRINTF == 1
         if (dest == nullptr || dest_len == 0)
             return 0;
         int result = ::vsnprintf(dest, dest_len, format, args);
         return std::min(ptrdiff_t(result), ptrdiff_t(dest_len) - 1);
+#else
+#   if defined (_WIN32)
+        int retval = _vsnprintf(dest, dest_len, format, args);
+        dest[dest_len - 1] = 0;
+        return retval > 0 ? retval : dest_len - 1;
+#   endif
+#endif
     }
 }
-
-#endif
 
