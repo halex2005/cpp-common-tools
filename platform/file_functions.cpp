@@ -7,6 +7,7 @@
 
 namespace platform
 {
+    /// Get full path to current executable file
     std::string get_executable_path()
     {
         using namespace boost::filesystem;
@@ -25,6 +26,7 @@ namespace platform
 #endif
     }
 
+    /// Get directory which contains current executable file
     std::string get_executable_dir()
     {
         using namespace boost::filesystem;
@@ -32,6 +34,8 @@ namespace platform
         return processPath.remove_filename().string();
     }
 
+    /// \brief Get absolute path to specified file
+    /// \param originalName - file name which will be resolved to absolute path
     std::string get_full_path(const std::string &originalName)
     {
         using namespace boost::filesystem;
@@ -39,6 +43,8 @@ namespace platform
         return absolute(p).string();
     }
 
+    /// \brief Get directory which contains specified file
+    /// \param originalName - file name which will be resolved to absolute dir
     std::string get_full_dir(const std::string &originalName)
     {
         using namespace boost::filesystem;
@@ -47,9 +53,16 @@ namespace platform
     }
 }
 
-// find_file implementation
+// find_file implementations
 namespace platform
 {
+    /// \brief Search file in specified directory.
+    /// \param [in]  fileName  - file name to search
+    /// \param [in]  directory - directory to search
+    /// \param [out] result    - full path if file was found
+    /// \return
+    ///     - true - if file found, full path to file is written to result
+    ///     - false - otherwise
     bool find_file(const char *fileName, const char *directory, std::string &result)
     {
         using namespace boost::filesystem;
@@ -70,6 +83,13 @@ namespace platform
         return false;
     }
 
+    /// \brief Search file in specified directory recursively.
+    /// \param [in]  fileName  - file name to search
+    /// \param [in]  directory - directory to search
+    /// \param [out] result    - full path if file was found
+    /// \return
+    ///     - true - if file found, full path to file is written to result
+    ///     - false - otherwise
     bool find_file_recursive(const char *fileName, const char *directory, std::string &result)
     {
         using namespace boost::filesystem;
@@ -105,6 +125,14 @@ namespace platform
         return false;
     }
 
+    /// \brief Search file in specified directory.
+    /// \param [in]  fileName  - file name to search
+    /// \param [in]  directory - directory to search
+    /// \param [out] result    - full path if file was found
+    /// \param [in]  recursive - flag to search file recursive
+    /// \return
+    ///     - true - if file found, full path to file is written to result
+    ///     - false - otherwise
     bool find_file(const char *fileName, const char *directory, std::string &result, bool recursive)
     {
         return recursive
@@ -112,33 +140,33 @@ namespace platform
             : find_file(fileName, directory, result);
     }
 
-    bool find_file(const char *fileName, const char *directory[], size_t dirsCount, std::string &result)
+    /// \brief Search file in multiple directories.
+    /// \param [in]  fileName    - file name to search
+    /// \param [in]  directories - directories to search
+    /// \param [in]  dirsCount   - count of directories in directories
+    /// \param [out] result      - full path if file was found
+    /// \param [in]  recursive - flag to search file recursive
+    /// \return
+    ///     - true - if file found, full path to file is written to result
+    ///     - false - otherwise
+    bool find_file(const char *fileName, const char *directories[], size_t dirsCount, std::string &result, bool recursive)
     {
         for (size_t i = 0; i < dirsCount; ++i)
         {
-            if (find_file(fileName, directory[i], result))
+            if (find_file(fileName, directories[i], result, recursive))
                 return true;
         }
         return false;
     }
 
-    bool find_file_recursive(const char *fileName, const char *directory[], size_t dirsCount, std::string &result)
-    {
-        for (size_t i = 0; i < dirsCount; ++i)
-        {
-            if (find_file_recursive(fileName, directory[i], result))
-                return true;
-        }
-        return false;
-    }
-
-    bool find_file(const char *fileName, const char *directory[], size_t dirsCount, std::string &result, bool recursive)
-    {
-        return recursive
-            ? find_file_recursive(fileName, directory, dirsCount, result)
-            : find_file(fileName, directory, dirsCount, result);
-    }
-
+    /// \brief Search file in multiple directories.
+    /// \param [in]  fileName    - file name to search
+    /// \param [in]  directories - directories to search
+    /// \param [in]  dirsCount   - count of directories in directories
+    /// \param [in]  recursive - flag to search file recursive
+    /// \return
+    ///     - if file found, full path to file will be returned
+    ///     - otherwise std::runtime_error will be throwed
     std::string find_file(const char *fileName, const char *directories[], size_t dirsCount, bool recursive)
     {
         std::string result;

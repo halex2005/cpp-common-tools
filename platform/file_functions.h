@@ -13,8 +13,6 @@ namespace platform
     bool find_file(const char *fileName, const char *directory, std::string &result);
     bool find_file(const char *fileName, const char *directory, std::string &result, bool recursive);
     bool find_file_recursive(const char *fileName, const char *directory, std::string &result);
-    bool find_file(const char *fileName, const char *directory[], size_t dirsCount, std::string &result);
-    bool find_file_recursive(const char *fileName, const char *directory[], size_t dirsCount, std::string &result);
     bool find_file(const char *fileName, const char *directory[], size_t dirsCount, std::string &result, bool recursive);
     std::string find_file(const char *fileName, const char *directories[], size_t dirsCount, bool recursive=false);
 }

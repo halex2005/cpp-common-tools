@@ -101,19 +101,10 @@ SCENARIO("find_file*", "[find_file][platform]")
             CMAKE_CURENT_SOURCE_DIRECTORY,
             searchPath.string().c_str(),
         };
-        THEN("should return true")
-        {
-            CHECK(true == platform::find_file(name, directories, ArraySize(directories), result));
-            CHECK(expectedFilePath == result);
-        }
         THEN("with recursive=false should return true")
         {
             CHECK(true == platform::find_file(name, directories, ArraySize(directories), result, false));
             CHECK(expectedFilePath == result);
-        }
-        THEN("should return false")
-        {
-            CHECK(false == platform::find_file(notExistantFile, directories, ArraySize(directories), result));
         }
         THEN("with recursive=false should return false")
         {
@@ -127,19 +118,10 @@ SCENARIO("find_file*", "[find_file][platform]")
             TEST_COMMON_DIRECTORY,
             CMAKE_CURENT_SOURCE_DIRECTORY,
         };
-        THEN("should return true")
-        {
-            CHECK(true == platform::find_file_recursive(name, directories, ArraySize(directories), result));
-            CHECK(expectedFilePath == result);
-        }
         THEN("with recursive=true should return true")
         {
             CHECK(true == platform::find_file(name, directories, ArraySize(directories), result, true));
             CHECK(expectedFilePath == result);
-        }
-        THEN("should return false")
-        {
-            CHECK(false == platform::find_file_recursive(notExistantFile, directories, ArraySize(directories), result));
         }
         THEN("with recursive=true should return false")
         {
