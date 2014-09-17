@@ -171,6 +171,7 @@ namespace KennyKerr
 
 #ifdef PLATFORM_WIN32
 
+    /// \brief Win32 HANDLE traits where invalid value is NULL
     struct null_handle_traits
     {
         using pointer = HANDLE;
@@ -186,6 +187,7 @@ namespace KennyKerr
         }
     };
 
+    /// \brief Win32 HANDLE traits where invalid value is INVALID_HANDLE_VALUE
     struct invalid_handle_traits
     {
         using pointer = HANDLE;
