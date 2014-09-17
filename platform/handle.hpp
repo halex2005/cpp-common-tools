@@ -1,7 +1,18 @@
+/// \file
+///
+/// This file is written by [Kenny Kerr](http://kennykerr.ca) and based on MSDN article
+/// [Windows and C++](http://msdn.microsoft.com/en-us/magazine/hh288076.aspx).
+///
+/// This file was belong to [dx project by Kenny Kerr](http://dx.codeplex.com/),
+/// but was slightly modified to unbind from platform-dependent headers
+/// and support on linux-family OS.
 #ifndef __HANDLE_HPP__
 #define __HANDLE_HPP__
 
+#include "platfrom.h"
+
 #ifndef ASSERT
+#include <cassert>
 #define ASSERT(x) assert(x)
 #endif
 
@@ -11,6 +22,19 @@
 
 namespace KennyKerr
 {
+    /// \brief RAII class for storing platform-dependent handles in type-safe manner.
+    ///
+    /// This class is useful with
+    ///
+    /// - native Win32 handles
+    /// - COM-interfaces (see \ref get_address_of())
+    /// - other stuff like FILE handles in C
+    ///   (need to implement custom traits, but code will be cleaner)
+    ///
+    /// For typical usage see MSDN article
+    /// [Windows and C++](http://msdn.microsoft.com/en-us/magazine/hh288076.aspx)
+    /// and Visual Studio Magazine article
+    /// [Resource Management in the Windows API](http://visualstudiomagazine.com/articles/2013/09/01/get-a-handle-on-the-windows-api.aspx).
     template <typename Traits>
     class unique_handle
     {
@@ -144,8 +168,8 @@ namespace KennyKerr
     {
         return left.get() <= right.get();
     }
-    
-#ifdef _WIN32
+
+#ifdef PLATFORM_WIN32
 
     struct null_handle_traits
     {
