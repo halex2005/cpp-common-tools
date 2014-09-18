@@ -4,24 +4,8 @@
 TEST_CASE("int formatter tests", "[formatter]") {
     char buffer[1024]{};
 
-    SECTION("int formatter tests") {
-        SECTION("int formatter") {
-            strings::formatter intFormatter = strings::get_formatter(16);
-            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
-            CHECK(result == 2);
-            REQUIRE("16" == std::string(buffer));
-        }
-
-        SECTION("int formatter with custom format") {
-            strings::formatter intFormatter = strings::get_formatter(16);
-            strings::format_options options{"%X"};
-            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
-            CHECK(result == 2);
-            REQUIRE("10" == std::string(buffer));
-        }
-    }
-
-    SECTION("int8_t formatter tests") {
+    SECTION("integer formatting - 1 byte")
+    {
         SECTION("int8_t formatter") {
             strings::formatter intFormatter = strings::get_formatter(int8_t(16));
             size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
@@ -36,20 +20,117 @@ TEST_CASE("int formatter tests", "[formatter]") {
             CHECK(result == 2);
             REQUIRE("10" == std::string(buffer));
         }
-    }
 
-    SECTION("uint formatter tests") {
-        SECTION("uint formatter") {
-            strings::formatter uintFormatter = strings::get_formatter(16u);
-            size_t result = uintFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+        SECTION("uint8_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(uint8_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
             CHECK(result == 2);
             REQUIRE("16" == std::string(buffer));
         }
 
-        SECTION("uint formatter with custom format") {
-            strings::formatter uintFormatter = strings::get_formatter(16u);
+        SECTION("uint8_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(uint8_t(16));
             strings::format_options options{"%X"};
-            size_t result = uintFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+    }
+
+    SECTION("integer formatting - 2 bytes")
+    {
+        SECTION("int16_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(int16_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("int16_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(int16_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+
+        SECTION("uint16_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(uint16_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("uint16_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(uint16_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+    }
+
+    SECTION("integer formatting - 4 bytes")
+    {
+        SECTION("int32_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(int32_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("int32_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(int32_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+
+        SECTION("uint32_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(uint32_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("uint32_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(uint32_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+    }
+
+    SECTION("integer formatting - 8 bytes")
+    {
+        SECTION("int64_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(int64_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("int64_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(int64_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
+            CHECK(result == 2);
+            REQUIRE("10" == std::string(buffer));
+        }
+
+        SECTION("uint64_t formatter") {
+            strings::formatter intFormatter = strings::get_formatter(uint64_t(16));
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
+            CHECK(result == 2);
+            REQUIRE("16" == std::string(buffer));
+        }
+
+        SECTION("uint64_t formatter with custom format") {
+            strings::formatter intFormatter = strings::get_formatter(uint64_t(16));
+            strings::format_options options{"%X"};
+            size_t result = intFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]), &options);
             CHECK(result == 2);
             REQUIRE("10" == std::string(buffer));
         }
