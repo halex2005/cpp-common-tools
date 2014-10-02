@@ -7,7 +7,7 @@ namespace strings
 {
     size_t bool_format(char *buffer, size_t bufferSize, const format_options *format, void *value)
     {
-        bool v = (bool)(value);
+        bool v = (bool)reinterpret_cast<size_t>(value);
         if (format == nullptr)
         {
             static const char* bool_values[] = {"false", "true"};
@@ -19,7 +19,7 @@ namespace strings
 
     size_t char_format(char *buffer, size_t bufferSize, const format_options *format, void *value)
     {
-        char v = (char)(value);
+        char v = (char)reinterpret_cast<ptrdiff_t>(value);
         if (format == nullptr)
         {
             if (bufferSize < 2)
@@ -33,7 +33,7 @@ namespace strings
 
     size_t wchar_t_format(char *buffer, size_t bufferSize, const format_options *format, void *value)
     {
-        wchar_t v = (wchar_t)value;
+        wchar_t v = (wchar_t)reinterpret_cast<ptrdiff_t>(value);
         if (format == nullptr)
         {
             boost::nowide::narrow(buffer, bufferSize, &v, &v + 1);
