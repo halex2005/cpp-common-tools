@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 project(common-tools)
 
-find_package(Boost 1.44 COMPONENTS log filesystem system)
+find_package(Boost 1.44 COMPONENTS filesystem system)
 if (NOT Boost_FOUND)
     message(SEND_ERROR "boost components not found")
     return()
