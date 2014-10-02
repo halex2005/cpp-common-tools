@@ -1,4 +1,5 @@
 #include <catch/catch.hpp>
+#include <iostream>
 #include <platform/thread_functions.h>
 #include <thread>
 
