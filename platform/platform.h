@@ -3,6 +3,9 @@
 
 #if defined(_WIN32)
 #define PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
 #elif defined(linux) || defined(__GNUC__) || defined(__clang__)
 #define PLATFORM_LINUX
 #endif
