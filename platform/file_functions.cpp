@@ -34,6 +34,14 @@ namespace platform
         return processPath.remove_filename().string();
     }
 
+    /// Get executable filename
+    std::string get_executable_name()
+    {
+        using namespace boost::filesystem;
+        path processPath = get_executable_path();
+        return processPath.filename().string();
+    }
+
     /// \brief Get absolute path to specified file
     /// \param originalName - file name which will be resolved to absolute path
     std::string get_full_path(const std::string &originalName)

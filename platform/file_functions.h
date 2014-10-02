@@ -7,6 +7,7 @@ namespace platform
 {
     std::string get_executable_path();
     std::string get_executable_dir();
+    std::string get_executable_name();
     std::string get_full_path(const std::string &originalName);
     std::string get_full_dir(const std::string &originalName);
 
