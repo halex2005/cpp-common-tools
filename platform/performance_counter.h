@@ -166,7 +166,7 @@ namespace platform
 
         inline performance_counter::interval_type frequency()
         {
-            static interval_type frequency_ = query_frequency();
+			static performance_counter::interval_type frequency_ = query_frequency();
             assert(0 != frequency_);
             return frequency_;
         }
@@ -185,7 +185,7 @@ namespace platform
         inline measure_fn_type get_measure_fn()
         {
             measure_fn_type fn;
-            value_type frequency;
+			performance_counter::value_type frequency;
 
             if(QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&frequency)))
                 fn = qpc;
@@ -196,39 +196,39 @@ namespace platform
         }
     }
 
-    inline void measure(value_type &epoch)
+	inline void measure(performance_counter::value_type &epoch)
     {
-        static measure_fn_type fn = detail::get_measure_fn();
+		static detail::measure_fn_type fn = detail::get_measure_fn();
         fn(epoch);
     }
 
-    performance_counter::sec_interval_type performance_counter::get_seconds() const
+	inline performance_counter::sec_interval_type performance_counter::get_seconds() const
     {
-        return (sec_interval_type)get_period_count()/frequency();
+		return static_cast<sec_interval_type>(get_period_count()) / detail::frequency();
     }
 
-    performance_counter::interval_type     performance_counter::get_milliseconds() const
+	inline performance_counter::interval_type     performance_counter::get_milliseconds() const
     {
         interval_type result;
         interval_type count = get_period_count();
 
         if(count < 0x20C49BA5E353F7LL)
-            result = (count*interval_type(1000))/frequency();
+            result = (count*interval_type(1000))/detail::frequency();
         else
-            result = (count/frequency())*interval_type(1000);
+            result = (count/detail::frequency())*interval_type(1000);
 
         return result;
     }
 
-    performance_counter::interval_type     performance_counter::get_microseconds() const
+    inline performance_counter::interval_type     performance_counter::get_microseconds() const
     {
         interval_type   result;
         interval_type   count   =   get_period_count();
 
         if(count < 0x8637BD05AF6LL)
-            result = (count*interval_type(1000000))/frequency();
+            result = (count*interval_type(1000000))/detail::frequency();
         else
-            result = (count/frequency())*interval_type(1000000);
+            result = (count/detail::frequency())*interval_type(1000000);
 
         return result;
     }
@@ -436,7 +436,7 @@ namespace platform
     inline typename accumulation_performance_counter<timer_type>::sec_interval_type
     accumulation_performance_counter<timer_type>::get_seconds() const
     {
-        return (sec_interval_type)get_period_count()/frequency();
+        return (sec_interval_type)get_period_count()/detail::frequency();
     }
 
     template <class timer_type>
@@ -447,9 +447,9 @@ namespace platform
         interval_type count = get_period_count();
 
         if(count < 0x20C49BA5E353F7LL)
-            result = (count*interval_type(1000))/frequency();
+            result = (count*interval_type(1000))/detail::frequency();
         else
-            result = (count/frequency())*interval_type(1000);
+            result = (count/detail::frequency())*interval_type(1000);
 
         return result;
     }
@@ -462,9 +462,9 @@ namespace platform
         interval_type   count   =   get_period_count();
 
         if(count < 0x8637BD05AF6LL)
-            result = (count*interval_type(1000000))/frequency();
+            result = (count*interval_type(1000000))/detail::frequency();
         else
-            result = (count/frequency())*interval_type(1000000);
+            result = (count/detail::frequency())*interval_type(1000000);
 
         return result;
     }
