@@ -1,6 +1,8 @@
 common-tools
 ============
 
+[![Build Status](https://travis-ci.org/halex2005/cpp-common-tools.svg?branch=master)](https://travis-ci.org/halex2005/cpp-common-tools)
+
 This is a cross-platform library with common tools helping boosts development.
 
 License
