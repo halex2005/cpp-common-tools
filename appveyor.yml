@@ -1,0 +1,25 @@
+version: 1.0.{build}
+skip_tags: true
+clone_folder: c:\projects\pjsettings
+environment:
+  BOOST_ROOT: c:\Libraries\boost
+  COMMONTOOLS_ROOT: c:\projects\cpp-common-tools
+platform:
+  - x86
+  - x64
+configuration:
+  - Debug
+  - Release
+install:
+  - set
+  - if "%PLATFORM%" == "x86" set CMAKE_GENERATOR="Visual Studio 12"
+  - if "%PLATFORM%" == "x86" set PLATFORM=Win32
+  - if "%PLATFORM%" == "x64" set CMAKE_GENERATOR="Visual Studio 12 Win64"
+  - if "%PLATFORM%" == "x64" set BOOST_LIBRARYDIR=%BOOST_ROOT%\stage.x64\lib
+  - mkdir "%COMMONTOOLS_ROOT%\tmp"
+  - cd "%COMMONTOOLS_ROOT%\tmp" && cmake .. -G %CMAKE_GENERATOR%
+  - dir "%COMMONTOOLS_ROOT%\tmp"
+build:
+  project: c:\projects\pjsettings\tmp\tests\test-common-tools.vcxproj
+test_script:
+  - cd %COMMONTOOLS_ROOT%\tmp\tests && test-common-tools.exe
