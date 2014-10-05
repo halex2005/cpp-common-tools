@@ -431,58 +431,61 @@ TEST_CASE("buffer to string tests")
 
             SECTION("without delimiter") {
                 char delimiter = 0;
-                SECTION("empty buffer should produce empty string");
+                SECTION("empty buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce empty string");
+                SECTION("small buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce ... string");
+                SECTION("small buffer should produce ... string")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
                     REQUIRE(manyFiller == buffer);
                 }
 
-                SECTION("empty array should produce empty string") {
+                SECTION("empty array should produce empty string")
+                {
                     size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
             }
 
-            SECTION("dash delimiter") {
+            SECTION("dash delimiter")
+            {
                 char delimiter = '-';
-                SECTION("empty buffer should produce empty string");
+                SECTION("empty buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce empty string");
+                SECTION("small buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce ... string");
+                SECTION("small buffer should produce ... string")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
                     REQUIRE(manyFiller == buffer);
                 }
 
-                SECTION("empty array should produce empty string") {
+                SECTION("empty array should produce empty string")
+                {
                     size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
@@ -574,69 +577,75 @@ TEST_CASE("buffer to string tests")
             std::wstring emptyString = {};
             std::wstring manyFiller = L"...";
 
-            SECTION("nullptr buffer should return 0") {
+            SECTION("nullptr buffer should return 0")
+            {
                 REQUIRE(0 == buffer_to_string(static_cast<char *>(nullptr), 16, bytes, ArraySize(bytes)));
             }
 
-            SECTION("nullptr array should produce empty string") {
+            SECTION("nullptr array should produce empty string")
+            {
                 CHECK(0 == buffer_to_string(buffer, ArraySize(buffer), static_cast<uint8_t *>(nullptr), 16));
                 REQUIRE(emptyString == buffer);
             }
 
-            SECTION("without delimiter") {
+            SECTION("without delimiter")
+            {
                 wchar_t delimiter = 0;
-                SECTION("empty buffer should produce empty string");
+                SECTION("empty buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce empty string");
+                SECTION("small buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce ... string");
+                SECTION("small buffer should produce ... string")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
                     REQUIRE(manyFiller == buffer);
                 }
 
-                SECTION("empty array should produce empty string") {
+                SECTION("empty array should produce empty string")
+                {
                     size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
             }
 
-            SECTION("dash delimiter") {
+            SECTION("dash delimiter")
+            {
                 wchar_t delimiter = L'-';
-                SECTION("empty buffer should produce empty string");
+                SECTION("empty buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 0, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce empty string");
+                SECTION("small buffer should produce empty string")
                 {
                     size_t result = buffer_to_string(buffer, 3, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
                 }
 
-                SECTION("small buffer should produce ... string");
+                SECTION("small buffer should produce ... string")
                 {
                     size_t result = buffer_to_string(buffer, 4, bytes, ArraySize(bytes), delimiter);
                     CHECK(result == 3);
                     REQUIRE(manyFiller == buffer);
                 }
 
-                SECTION("empty array should produce empty string") {
+                SECTION("empty array should produce empty string")
+                {
                     size_t result = buffer_to_string(buffer, ArraySize(buffer), bytes, 0, delimiter);
                     CHECK(result == 0);
                     REQUIRE(emptyString == buffer);
