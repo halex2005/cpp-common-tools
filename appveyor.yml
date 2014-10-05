@@ -22,4 +22,4 @@ install:
 build:
   project: c:\projects\cpp-common-tools\tmp\tests\test-common-tools.vcxproj
 test_script:
-  - cd %COMMONTOOLS_ROOT%\tmp\tests && test-common-tools.exe
+  - cd %COMMONTOOLS_ROOT%\tmp\tests\%CONFIGURATION% && test-common-tools.exe
