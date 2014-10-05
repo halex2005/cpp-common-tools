@@ -20,6 +20,6 @@ install:
   - cd "%COMMONTOOLS_ROOT%\tmp" && cmake .. -G %CMAKE_GENERATOR% -DBoost_USE_STATIC_LIBS=ON -DBoost_USE_MULTITHREADED=ON
   - dir "%COMMONTOOLS_ROOT%\tmp"
 build:
-  project: c:\projects\pjsettings\tmp\tests\test-common-tools.vcxproj
+  project: c:\projects\cpp-common-tools\tmp\tests\test-common-tools.vcxproj
 test_script:
   - cd %COMMONTOOLS_ROOT%\tmp\tests && test-common-tools.exe
