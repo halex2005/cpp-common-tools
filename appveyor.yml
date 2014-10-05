@@ -1,6 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
-clone_folder: c:\projects\pjsettings
+clone_folder: c:\projects\cpp-common-tools
 environment:
   BOOST_ROOT: c:\Libraries\boost
   COMMONTOOLS_ROOT: c:\projects\cpp-common-tools
