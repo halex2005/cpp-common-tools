@@ -1,4 +1,4 @@
-#include <catch/catch.hpp>
+﻿#include <catch/catch.hpp>
 #include <strings/formatter.h>
 
 TEST_CASE("int formatter tests", "[formatter]") {
