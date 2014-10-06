@@ -278,9 +278,9 @@ namespace strings
     /// If output is zero length, function will return zero.
     ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
     {
-#if HAVE_SNPRINTF == 1
         if (dest == nullptr || dest_len == 0)
             return 0;
+#if HAVE_SNPRINTF == 1
         va_list ap;
         va_start(ap, format);
         int result = ::vsnprintf(dest, dest_len, format, ap);
@@ -295,7 +295,9 @@ namespace strings
         va_end(ap);
 
         dest[dest_len - 1] = 0;
-        return retval > 0 ? retval : dest_len - 1;
+        return retval > 0
+            ? std::min(static_cast<ptrdiff_t>(retval), static_cast<ptrdiff_t>(dest_len - 1))
+            : dest_len - 1;
 #   endif
 #endif
     }

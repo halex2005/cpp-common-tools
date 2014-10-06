@@ -97,9 +97,10 @@ SCENARIO("find_file*", "[find_file][platform]")
 
     WHEN("find_file non-recursive in multiple directories")
     {
+        auto searchPathString = searchPath.string();
         const char *directories[] = {
             CMAKE_CURENT_SOURCE_DIRECTORY,
-            searchPath.string().c_str(),
+            searchPathString.c_str(),
         };
         THEN("with recursive=false should return true")
         {

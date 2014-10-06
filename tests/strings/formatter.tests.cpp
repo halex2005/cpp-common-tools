@@ -190,7 +190,7 @@ TEST_CASE("char* formatter tests", "[formatter]") {
         REQUIRE("string" == std::string(buffer));
     }
     SECTION("wchar_t* formatter") {
-        char expected[] = "unicode-русский";
+        char expected[] = "unicode-\xD1\x80\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9"; // unicode-русский
         wchar_t source[] = L"unicode-русский";
         strings::formatter wchar_t_PtrFormatter = strings::get_formatter(source);
         size_t result = wchar_t_PtrFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
@@ -209,7 +209,7 @@ TEST_CASE("std::string formatter tests", "[formatter]") {
         REQUIRE("string" == std::string(buffer));
     }
     SECTION("std::wstring formatter") {
-        char expected[] = "unicode-русский";
+        char expected[] = "unicode-\xD1\x80\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9"; // unicode-русский
         std::wstring source = L"unicode-русский";
         strings::formatter wstringFormatter = strings::get_formatter(source);
         size_t result = wstringFormatter.format(buffer, sizeof(buffer) / sizeof(buffer[0]));
