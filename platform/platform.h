@@ -2,12 +2,20 @@
 #define __PLATFORM_HEADER_H__
 
 #if defined(_WIN32)
-#define PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
+#   define PLATFORM_WIN32
+
+#   ifndef WIN32_LEAN_AND_MEAN
+#   define WIN32_LEAN_AND_MEAN
+#   endif
+
+#   ifndef NOMINMAX
+#   define NOMINMAX
+#   endif
+
+#   include <Windows.h>
+
 #elif defined(linux) || defined(__GNUC__) || defined(__clang__)
-#define PLATFORM_LINUX
+#   define PLATFORM_LINUX
 #endif
 
 #ifdef __DOXYGEN_RUNNING__
