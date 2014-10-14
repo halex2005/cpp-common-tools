@@ -276,7 +276,7 @@ namespace strings
     /// which have been written to the final string.
     ///
     /// If output is zero length, function will return zero.
-    ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...)
+    ptrdiff_t str_printf(char *dest, size_t dest_len, const char *format, ...)
     {
         if (dest == nullptr || dest_len == 0)
             return 0;
@@ -313,7 +313,7 @@ namespace strings
     /// which have been written to the final string.
     ///
     /// If output is zero length, function will return zero.
-    ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args)
+    ptrdiff_t str_vprintf(char *dest, size_t dest_len, const char *format, va_list args)
     {
 #if HAVE_SNPRINTF == 1
         if (dest == nullptr || dest_len == 0)

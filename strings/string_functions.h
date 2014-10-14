@@ -25,6 +25,6 @@ namespace strings
 
 namespace strings
 {
-    ptrdiff_t snprintf(char *dest, size_t dest_len, const char *format, ...);
-    ptrdiff_t vsnprintf(char *dest, size_t dest_len, const char *format, va_list args);
+    ptrdiff_t str_printf(char *dest, size_t dest_len, const char *format, ...);
+    ptrdiff_t str_vprintf(char *dest, size_t dest_len, const char *format, va_list args);
 }
