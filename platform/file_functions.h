@@ -11,6 +11,9 @@ namespace platform
     std::string get_full_path(const std::string &originalName);
     std::string get_full_dir(const std::string &originalName);
 
+    bool set_current_dir(const std::string &newCurrentDirectory);
+    std::string get_current_directory();
+
     bool find_file(const char *fileName, const char *directory, std::string &result);
     bool find_file(const char *fileName, const char *directory, std::string &result, bool recursive);
     bool find_file_recursive(const char *fileName, const char *directory, std::string &result);

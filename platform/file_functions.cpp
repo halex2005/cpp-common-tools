@@ -59,6 +59,24 @@ namespace platform
         path p(originalName);
         return absolute(p).remove_filename().string();
     }
+
+    /// \brief Set current working directory to specified location
+    bool set_current_dir(const std::string &newCurrentDirectory)
+    {
+        using namespace boost::filesystem;
+        boost::system::error_code ec;
+        current_path(newCurrentDirectory, ec);
+        return !ec;
+    }
+
+    /// \brief Get current working directory
+    std::string get_current_directory()
+    {
+        using namespace boost::filesystem;
+        boost::system::error_code ec;
+        path currentPath = current_path(ec);
+        return currentPath.string();
+    }
 }
 
 // find_file implementations
