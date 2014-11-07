@@ -20,7 +20,7 @@ namespace platform
         int bytes = std::min(size_t(readlink("/proc/self/exe", pBuf, ArraySize(pBuf))), ArraySize(pBuf) - 1);
         if (bytes >= 0)
             pBuf[bytes] = '\0';
-        return absolute(path(pBuf)).string();
+        return std::string(pBuf);
 #else
         return "";
 #endif
