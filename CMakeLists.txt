@@ -38,12 +38,18 @@ set(platform_sources
 )
 source_group(platform FILES ${platform_sources})
 
+set(utility_sources
+    utility/event_test.h
+)
+source_group(utility FILES ${utility_sources})
+
 add_definitions(-std=c++11)
 add_definitions(-fpermissive)
 add_library(common-tools
     ${SOURCES}
     ${platform_sources}
     ${string_sources}
+    ${utility_sources}
 )
 
 include_directories(.)
