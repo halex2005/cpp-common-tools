@@ -8,6 +8,11 @@ set (strings_tests
 )
 source_group(strings FILES ${strings_tests})
 
+set (utility_tests
+    utility/event_test.tests.cpp
+)
+source_group(utility FILES ${utility_tests})
+
 set (platform_tests
     platform/platform_headers.tests.cpp
 
@@ -19,7 +24,12 @@ source_group(platform FILES ${platform_tests})
 
 include_directories(.)
 
-add_executable(test-common-tools main.cpp ${strings_tests} ${platform_tests})
+add_executable(test-common-tools
+    main.cpp
+    ${strings_tests}
+    ${utility_tests}
+    ${platform_tests}
+)
 target_link_libraries(test-common-tools ${Boost_LIBRARIES} common-tools)
 
 get_property(TEST_COMMON_LOCATION TARGET test-common-tools PROPERTY LOCATION)
